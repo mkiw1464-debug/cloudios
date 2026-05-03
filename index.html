@@ -6,12 +6,11 @@
     <title>CLOUD IOS | PREMIUM SECURITY</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/framer-motion/10.16.4/framer-motion.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background: radial-gradient(circle at top right, #1e293b, #0f172a, #020617);
+            background: #020617;
             color: white;
             overflow-x: hidden;
         }
@@ -19,207 +18,169 @@
             background: rgba(255, 255, 255, 0.03);
             backdrop-filter: blur(25px) saturate(180%);
             -webkit-backdrop-filter: blur(25px) saturate(180%);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        .btn-ios {
-            background: linear-gradient(180deg, #007AFF 0%, #0051a8 100%);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        .price-card {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        .btn-ios:hover { transform: translateY(-2px); box-shadow: 0 10px 20px -5px rgba(0, 122, 255, 0.5); }
-        .logo-img { pointer-events: none; user-select: none; filter: drop-shadow(0 0 10px rgba(0,122,255,0.5)); }
-        [x-cloak] { display: none !important; }
+        .price-card:hover {
+            transform: scale(1.05);
+            background: rgba(0, 122, 255, 0.15);
+            border-color: #007AFF;
+        }
+        .logo-img { pointer-events: none; user-select: none; }
         
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-            100% { transform: translateY(0px); }
+        /* Loading Spinner */
+        .spinner {
+            width: 50px; height: 50px;
+            border: 5px solid rgba(0, 122, 255, 0.1);
+            border-top: 5px solid #007AFF;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
         }
-        .float { animation: float 4s ease-in-out infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body x-data="{ 
     page: 'home', 
-    user: '', 
     selectedCheat: null,
+    loading: false,
     priceList: [
-        {time: '1 Day', rm: '10'}, {time: '3 Day', rm: '20'}, {time: '7 Day', rm: '40'},
-        {time: '30 Day', rm: '70'}, {time: '60 Day', rm: '120'}, {time: '90 Day', rm: '160'},
-        {time: 'PERMANENT', rm: '500'}
+        {time: '1 Day', rm: '10', popular: false}, 
+        {time: '3 Day', rm: '20', popular: false}, 
+        {time: '7 Day', rm: '40', popular: true},
+        {time: '30 Day', rm: '70', popular: false}, 
+        {time: '60 Day', rm: '120', popular: false}, 
+        {time: '90 Day', rm: '160', popular: false},
+        {time: 'PERMANENT', rm: '500', popular: false}
     ],
-    cheats: [
-        {id: 1, name: 'Magic Bullet', desc: 'Tembakan menembus dinding dan auto-hit.'},
-        {id: 2, name: 'AimBody', desc: 'Lock badan musuh 100% tepat.'},
-        {id: 3, name: 'AimChest', desc: 'Fokus tembakan pada bahagian dada.'},
-        {id: 4, name: 'AimNeck', desc: 'Lock leher untuk recoil stabil.'},
-        {id: 5, name: 'AimDrag', desc: 'Auto drag-shot untuk headshot mudah.'}
-    ]
-}" x-cloak>
-
-    <!-- Animated Glows -->
-    <div class="fixed -top-20 -left-20 w-96 h-96 bg-blue-600/30 blur-[120px] rounded-full"></div>
-    <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-indigo-900/10 blur-[150px] rounded-full"></div>
+    startPayment() {
+        this.page = 'loading';
+        setTimeout(() => { this.page = 'error'; }, 10000);
+    }
+}">
 
     <!-- Nav -->
     <nav class="relative z-50 p-6 flex justify-between items-center max-w-7xl mx-auto">
         <div class="flex items-center gap-3 cursor-pointer" @click="page = 'home'">
-            <img src="https://i.ibb.co/4ntZnLgc/82-E1-A62-F-57-BB-4-D93-AAF9-2-F6087-E2-F860.png" class="w-12 h-12 logo-img">
-            <span class="font-extrabold text-2xl tracking-tighter italic">CLOUD<span class="text-blue-500">IOS</span></span>
+            <img src="https://i.ibb.co/4ntZnLgc/82-E1-A62-F-57-BB-4-D93-AAF9-2-F6087-E2-F860.png" class="w-10 h-10 logo-img">
+            <span class="font-extrabold text-xl tracking-tighter italic uppercase">Cloud<span class="text-blue-500">ios</span></span>
         </div>
-        <div class="flex gap-4">
-            <button x-show="page === 'home'" @click="page = 'login'" class="real-glass px-8 py-2.5 rounded-full font-semibold hover:bg-white/10 transition text-sm">Masuk</button>
-            <button x-show="page !== 'home'" @click="page = 'home'" class="text-gray-400 hover:text-white transition">Utama</button>
-        </div>
+        <button x-show="page === 'home'" @click="page = 'login'" class="real-glass px-6 py-2 rounded-full font-semibold text-sm">Login</button>
+        <button x-show="page !== 'home'" @click="page = 'home'" class="text-gray-400 text-sm">Kembali Utama</button>
     </nav>
 
-    <!-- UI SECTIONS -->
-    <div class="relative z-10 max-w-7xl mx-auto px-6 pb-20">
+    <div class="relative z-10 max-w-7xl mx-auto px-6 pt-10 pb-20">
 
         <!-- HOME PAGE -->
         <template x-if="page === 'home'">
-            <div class="pt-10">
-                <div class="text-center mb-20">
-                    <h1 class="text-6xl md:text-8xl font-extrabold mb-6 tracking-tight">
-                        THE NEXT <span class="text-blue-500">LEVEL</span> <br> OF CHEATING.
-                    </h1>
-                    <p class="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
-                        Satu-satunya sistem yang diiktiraf antiban dan antiblacklist untuk iOS. 
-                        Rasai pengalaman bermain seperti Pro Player tanpa risiko.
-                    </p>
-                    <div class="flex justify-center gap-6">
-                        <button @click="page = 'register'" class="btn-ios px-10 py-4 rounded-full font-bold text-lg">Daftar Sekarang</button>
-                    </div>
-                </div>
-
-                <!-- TESTIMONI SECTION -->
-                <h2 class="text-center text-3xl font-bold mb-10 text-blue-400">Trusted By Thousands</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <template x-for="i in [1,2,3,4,5,6,7,8]">
-                        <div class="real-glass p-6 rounded-3xl hover:-translate-y-2 transition duration-500">
-                            <div class="flex text-yellow-500 mb-3 text-sm">★★★★★</div>
-                            <p class="text-gray-300 text-sm leading-relaxed italic" x-text="[
-                                '&quot;Admin fast respon, key terus dapat. Terbaik!&quot;',
-                                '&quot;Dah setahun pakai kat akaun utama, masih tak kena ban.&quot;',
-                                '&quot;Script dia smooth, ios pun tak panas.&quot;',
-                                '&quot;Harga paling murah tapi kualiti kayangan.&quot;',
-                                '&quot;Magic bullet dia memang haram betul haha, puas hati!&quot;',
-                                '&quot;Trusted 100%, tak menyesal beli.&quot;',
-                                '&quot;Auto headshot dia nampak natural, selamat main rank.&quot;',
-                                '&quot;Sangat senang setup, tak sampai 5 minit siap.&quot;'
-                            ][i-1]"></p>
-                            <p class="mt-4 text-xs font-bold uppercase tracking-widest text-blue-500" x-text="'USER_ID_00' + i"></p>
+            <div class="text-center">
+                <h1 class="text-5xl md:text-7xl font-black mb-6 uppercase tracking-tighter">iOS Game <span class="text-blue-500 italic">Security</span></h1>
+                <p class="text-gray-400 mb-12">No.1 Antiban & Antiblacklist Technology for Free Fire iOS.</p>
+                <button @click="page = 'login'" class="bg-blue-600 px-12 py-4 rounded-full font-bold text-lg hover:bg-blue-500 transition">MASUK SEKARANG</button>
+                
+                <!-- Fake Ratings (Banyak) -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-24">
+                    <template x-for="n in 8">
+                        <div class="real-glass p-4 rounded-2xl text-left">
+                            <div class="flex text-yellow-500 text-xs mb-2">★★★★★</div>
+                            <p class="text-xs text-gray-400 italic" x-text="['Mantap bang, key masuk laju!', 'Akaun utama safe 100%', 'Aimlock kemas habiss', 'iOS 17 pun support!', 'Terbaik admin!', 'Tak rugi beli permanent', 'Fungsi magic bullet paling win', 'Laju gila respon admin'][n-1]"></p>
                         </div>
                     </template>
                 </div>
             </div>
         </template>
 
-        <!-- LOGIN/REGISTER -->
-        <template x-if="page === 'register' || page === 'login'">
-            <div class="min-h-[70vh] flex items-center justify-center">
-                <div class="real-glass p-10 rounded-[40px] w-full max-w-md float">
-                    <h2 class="text-3xl font-bold mb-2 text-center" x-text="page === 'register' ? 'Create Account' : 'Welcome Back'"></h2>
-                    <p class="text-center text-gray-500 mb-8 text-sm">Sila masukkan butiran anda di bawah</p>
-                    <div class="space-y-4">
-                        <input type="text" placeholder="Username" class="w-full bg-white/5 border border-white/10 p-5 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition">
-                        <input type="password" placeholder="Password" class="w-full bg-white/5 border border-white/10 p-5 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition">
-                        <button @click="page = (page === 'register' ? 'login' : 'dashboard')" class="w-full btn-ios py-5 rounded-2xl font-bold text-lg" x-text="page === 'register' ? 'Sign Up' : 'Log In'"></button>
-                    </div>
+        <!-- LOGIN -->
+        <template x-if="page === 'login'">
+            <div class="max-w-md mx-auto py-20">
+                <div class="real-glass p-8 rounded-[30px]">
+                    <h2 class="text-2xl font-bold mb-6 text-center italic uppercase">Dashboard Access</h2>
+                    <input type="text" placeholder="Username" class="w-full bg-white/5 border border-white/10 p-4 rounded-2xl mb-4 focus:outline-none focus:border-blue-500">
+                    <input type="password" placeholder="Password" class="w-full bg-white/5 border border-white/10 p-4 rounded-2xl mb-6 focus:outline-none focus:border-blue-500">
+                    <button @click="page = 'dashboard'" class="w-full bg-blue-600 py-4 rounded-2xl font-bold uppercase tracking-widest">Login</button>
                 </div>
             </div>
         </template>
 
-        <!-- DASHBOARD (CHOOSE CATEGORY) -->
+        <!-- DASHBOARD (CHOOSE CHEAT) -->
         <template x-if="page === 'dashboard'">
-            <div class="pt-10">
-                <h2 class="text-4xl font-extrabold mb-2">PILIH <span class="text-blue-500">JENIS CHEAT</span></h2>
-                <p class="text-gray-500 mb-12 italic">Sila pilih modul yang anda mahu aktifkan:</p>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <template x-for="cheat in cheats" :key="cheat.id">
-                        <div @click="selectedCheat = cheat; page = 'cheat-detail'" class="real-glass p-8 rounded-[35px] hover:border-blue-500/50 transition-all cursor-pointer group">
-                            <div class="flex justify-between items-start mb-6">
-                                <div class="p-4 bg-blue-500/10 rounded-2xl group-hover:bg-blue-500/30 transition">
-                                    <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
-                                </div>
-                                <span class="text-[10px] font-bold bg-green-500/20 text-green-400 px-3 py-1 rounded-full uppercase tracking-tighter">Undetected</span>
-                            </div>
-                            <h3 class="text-2xl font-bold mb-2" x-text="cheat.name"></h3>
-                            <p class="text-gray-400 text-sm mb-6" x-text="cheat.desc"></p>
-                            <div class="flex items-center text-blue-500 font-bold group-hover:translate-x-2 transition">
-                                Lihat Pakej 
-                                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
-                            </div>
+            <div>
+                <h2 class="text-3xl font-black mb-8 italic uppercase tracking-widest text-blue-500">Select Modul</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <template x-for="name in ['Magic Bullet', 'AimBody', 'AimChest', 'AimNeck', 'AimDrag']">
+                        <div @click="selectedCheat = name; page = 'cheat-detail'" class="real-glass p-10 rounded-[40px] hover:bg-white/5 cursor-pointer border-b-4 border-blue-600 transition group">
+                            <h3 class="text-2xl font-black mb-2" x-text="name"></h3>
+                            <p class="text-xs text-gray-500 uppercase tracking-widest font-bold group-hover:text-blue-400">View Pricing &rarr;</p>
                         </div>
                     </template>
                 </div>
             </div>
         </template>
 
-        <!-- CHEAT DETAIL PAGE (NEW PAGE) -->
+        <!-- CHEAT DETAIL (PRICING LIST) -->
         <template x-if="page === 'cheat-detail'">
-            <div class="max-w-4xl mx-auto pt-10">
-                <button @click="page = 'dashboard'" class="mb-6 text-gray-500 hover:text-white flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg> Kembali
-                </button>
-                <div class="real-glass p-10 rounded-[45px]">
-                    <div class="flex flex-col md:flex-row gap-10">
-                        <div class="flex-1 text-center md:text-left">
-                            <h1 class="text-5xl font-black mb-4 text-blue-500" x-text="selectedCheat.name"></h1>
-                            <p class="text-gray-400 mb-8 leading-relaxed" x-text="selectedCheat.desc"></p>
-                            <div class="grid grid-cols-2 gap-3">
-                                <div class="bg-white/5 p-4 rounded-2xl text-center">
-                                    <p class="text-[10px] text-gray-500 uppercase font-bold">Safe Rank</p>
-                                    <p class="text-green-400 font-bold">YES</p>
-                                </div>
-                                <div class="bg-white/5 p-4 rounded-2xl text-center">
-                                    <p class="text-[10px] text-gray-500 uppercase font-bold">Auto Update</p>
-                                    <p class="text-blue-400 font-bold">YES</p>
-                                </div>
-                            </div>
+            <div class="text-center">
+                <h2 class="text-4xl font-black mb-2 italic uppercase" x-text="selectedCheat"></h2>
+                <p class="text-blue-400 text-xs font-bold tracking-[0.3em] mb-12 uppercase">Sila Pilih Tempoh Masa</p>
+                
+                <div class="flex flex-wrap justify-center gap-4">
+                    <template x-for="p in priceList">
+                        <div @click="startPayment()" class="price-card w-full md:w-[200px] p-6 rounded-[30px] cursor-pointer relative overflow-hidden">
+                            <template x-if="p.popular">
+                                <div class="absolute top-0 right-0 bg-blue-600 text-[8px] font-bold px-3 py-1 rounded-bl-lg">HOT</div>
+                            </template>
+                            <p class="text-gray-400 text-[10px] uppercase font-black mb-2" x-text="p.time"></p>
+                            <p class="text-2xl font-black">RM<span x-text="p.rm"></span></p>
+                            <div class="mt-4 text-[10px] bg-white/10 py-2 rounded-full font-bold group-hover:bg-blue-600">BUY NOW</div>
                         </div>
-                        <div class="flex-1 bg-white/5 p-6 rounded-3xl border border-white/5">
-                            <h3 class="font-bold mb-4 text-sm uppercase tracking-widest text-gray-400">Pilih Langganan</h3>
-                            <div class="space-y-3 h-[300px] overflow-y-auto pr-2 custom-scroll">
-                                <template x-for="p in priceList">
-                                    <div @click="page = 'checkout'" class="flex justify-between items-center p-4 real-glass rounded-2xl cursor-pointer hover:bg-blue-600/20 transition group">
-                                        <span class="font-bold" x-text="p.time"></span>
-                                        <span class="text-blue-400 group-hover:text-white font-black" x-text="'RM' + p.rm"></span>
-                                    </div>
-                                </template>
-                            </div>
-                        </div>
+                    </template>
+                </div>
+                <button @click="page = 'dashboard'" class="mt-12 text-gray-500 text-sm hover:text-white">&larr; Tukar Jenis Cheat</button>
+            </div>
+        </template>
+
+        <!-- LOADING ANIMATION (10 SECONDS) -->
+        <template x-if="page === 'loading'">
+            <div class="min-h-[50vh] flex flex-col items-center justify-center py-20">
+                <div class="spinner mb-8"></div>
+                <h2 class="text-2xl font-bold animate-pulse">Generating QR Code...</h2>
+                <p class="text-gray-500 mt-2">Sila tunggu sebentar, sistem sedang memproses maklumat pembayaran anda.</p>
+                
+                <div class="mt-10 real-glass p-6 rounded-2xl flex items-center gap-4">
+                    <img src="https://i.ibb.co/r2DfxYJ8/IMG-3430.png" class="w-10 h-10">
+                    <div class="text-left">
+                        <p class="text-[10px] text-gray-500 font-bold uppercase">Payment Gateway</p>
+                        <p class="font-bold text-sm">Touch 'n Go eWallet</p>
                     </div>
                 </div>
             </div>
         </template>
 
-        <!-- CHECKOUT & ERROR QR -->
-        <template x-if="page === 'checkout'">
-            <div class="min-h-[70vh] flex items-center justify-center">
-                <div class="real-glass p-10 rounded-[50px] text-center max-w-lg w-full">
+        <!-- ERROR PAGE -->
+        <template x-if="page === 'error'">
+            <div class="max-w-md mx-auto py-10">
+                <div class="real-glass p-10 rounded-[40px] border-red-500/50 border-t-8 text-center">
                     <div class="w-20 h-20 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
                         <svg class="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                     </div>
-                    <h2 class="text-3xl font-black mb-2 text-red-500 tracking-tighter uppercase">QR Generator Failed</h2>
-                    <p class="text-gray-400 mb-10 leading-relaxed">
-                        Maaf, sistem pemprosesan automatik TNG eWallet sedang mengalami gangguan teknikal. Sila hubungi Admin melalui Telegram untuk pembelian manual segera.
-                    </p>
+                    <h2 class="text-3xl font-black mb-4 uppercase text-red-500 italic">Error!</h2>
+                    <p class="text-gray-400 mb-8 leading-relaxed">QR Generator gagal diproses. Sila hubungi Admin untuk pembelian manual melalui Telegram.</p>
                     
-                    <div class="bg-white/5 p-6 rounded-3xl flex items-center gap-4 mb-8">
-                        <img src="https://i.ibb.co/r2DfxYB/IMG-3430.png" class="w-12 h-12 rounded-lg">
-                        <div class="text-left">
-                            <p class="text-xs text-gray-500 uppercase font-bold">Selected Payment</p>
-                            <p class="font-bold">Touch 'n Go eWallet</p>
-                        </div>
-                    </div>
-
-                    <a href="https://t.me/pr0xyff" target="_blank" class="block w-full btn-ios py-5 rounded-3xl font-bold text-xl mb-4">Chat Admin di Telegram</a>
-                    <button @click="page = 'dashboard'" class="text-gray-600 hover:text-white transition text-sm">Kembali ke Dashboard</button>
+                    <a href="https://t.me/pr0xyff" target="_blank" class="block w-full bg-blue-600 py-5 rounded-2xl font-black text-lg mb-4 hover:scale-105 transition">CHAT ADMIN (TELEGRAM)</a>
+                    <button @click="page = 'dashboard'" class="text-gray-600 text-xs uppercase font-bold tracking-widest">Back to Menu</button>
                 </div>
             </div>
         </template>
 
     </div>
+
+    <!-- Footer -->
+    <footer class="text-center py-10 text-gray-700 text-[10px] uppercase tracking-[0.5em]">
+        Cloud iOS &copy; 2026 Security Technology
+    </footer>
 
 </body>
 </html>
